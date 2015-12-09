@@ -16,7 +16,7 @@ namespace Test
 		{
 			base.OnCreate (bundle);
 
-			WebSocketHelper wSH = new WebSocketHelper("ws://192.168.137.1:8080/WebApplication1/test");
+			WebSocketHelper wSH = new WebSocketHelper("ws://btexterd.unicloud.pl/test/test");
 
 			SetContentView (Resource.Layout.Main);
 
