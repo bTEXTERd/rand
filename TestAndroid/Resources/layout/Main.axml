@@ -4,9 +4,9 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
-    <Button
-        android:id="@+id/MyButton"
+    <fragment
+        class="TestAndroid.RealTimeChart"
+        android:id="@+id/ChartFragment"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/Hello" />
+        android:layout_height="match_parent" />
 </LinearLayout>
