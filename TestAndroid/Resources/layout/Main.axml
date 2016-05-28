@@ -4,9 +4,9 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
-    <fragment
-        class="TestAndroid.RealTimeChart"
-        android:id="@+id/ChartFragment"
-        android:layout_width="fill_parent"
-        android:layout_height="match_parent" />
+  <fragment
+      class="TestAndroid.RealTimeChart"
+      android:id="@+id/Chart"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent" />
 </LinearLayout>
