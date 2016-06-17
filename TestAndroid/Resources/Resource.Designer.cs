@@ -41,6 +41,67 @@ namespace TestAndroid
 			}
 		}
 		
+		public partial class Color
+		{
+			
+			// aapt resource value: 0x7f04000b
+			public const int accent = 2130968587;
+			
+			// aapt resource value: 0x7f040000
+			public const int background = 2130968576;
+			
+			// aapt resource value: 0x7f040003
+			public const int bar_down = 2130968579;
+			
+			// aapt resource value: 0x7f040002
+			public const int bar_up = 2130968578;
+			
+			// aapt resource value: 0x7f04000f
+			public const int divider = 2130968591;
+			
+			// aapt resource value: 0x7f04000e
+			public const int icons = 2130968590;
+			
+			// aapt resource value: 0x7f040001
+			public const int pop = 2130968577;
+			
+			// aapt resource value: 0x7f040008
+			public const int primary = 2130968584;
+			
+			// aapt resource value: 0x7f040009
+			public const int primary_dark = 2130968585;
+			
+			// aapt resource value: 0x7f04000a
+			public const int primary_light = 2130968586;
+			
+			// aapt resource value: 0x7f04000c
+			public const int primary_text = 2130968588;
+			
+			// aapt resource value: 0x7f04000d
+			public const int secondary_text = 2130968589;
+			
+			// aapt resource value: 0x7f040006
+			public const int xam_blue = 2130968582;
+			
+			// aapt resource value: 0x7f040004
+			public const int xam_darkblue = 2130968580;
+			
+			// aapt resource value: 0x7f040007
+			public const int xam_green = 2130968583;
+			
+			// aapt resource value: 0x7f040005
+			public const int xam_purple = 2130968581;
+			
+			static Color()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
+			
+			private Color()
+			{
+			}
+		}
+		
 		public partial class Drawable
 		{
 			
@@ -60,14 +121,14 @@ namespace TestAndroid
 		public partial class Id
 		{
 			
-			// aapt resource value: 0x7f050002
-			public const int Chart = 2131034114;
+			// aapt resource value: 0x7f070002
+			public const int Chart = 2131165186;
 			
-			// aapt resource value: 0x7f050001
-			public const int LinearLayout = 2131034113;
+			// aapt resource value: 0x7f070001
+			public const int LinearLayout = 2131165185;
 			
-			// aapt resource value: 0x7f050000
-			public const int RelativeLayout = 2131034112;
+			// aapt resource value: 0x7f070000
+			public const int RelativeLayout = 2131165184;
 			
 			static Id()
 			{
@@ -101,11 +162,11 @@ namespace TestAndroid
 		public partial class String
 		{
 			
-			// aapt resource value: 0x7f040001
-			public const int ApplicationName = 2130968577;
+			// aapt resource value: 0x7f050001
+			public const int ApplicationName = 2131034113;
 			
-			// aapt resource value: 0x7f040000
-			public const int Hello = 2130968576;
+			// aapt resource value: 0x7f050000
+			public const int Hello = 2131034112;
 			
 			static String()
 			{
@@ -113,6 +174,28 @@ namespace TestAndroid
 			}
 			
 			private String()
+			{
+			}
+		}
+		
+		public partial class Style
+		{
+			
+			// aapt resource value: 0x7f060000
+			public const int MyTheme = 2131099648;
+			
+			// aapt resource value: 0x7f060002
+			public const int MyTheme_ActionBar_TitleTextStyle = 2131099650;
+			
+			// aapt resource value: 0x7f060001
+			public const int MyTheme_ActionBarStyle = 2131099649;
+			
+			static Style()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
+			
+			private Style()
 			{
 			}
 		}
