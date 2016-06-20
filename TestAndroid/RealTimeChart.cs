@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net.WebSockets;
@@ -7,16 +8,20 @@ using System.Threading.Tasks;
 using Android.App;
 using Android.Graphics;
 using Android.OS;
+using Android.Support.Design.Widget;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Java.Lang;
+using Java.Util;
 using MikePhil.Charting.Charts;
 using MikePhil.Charting.Components;
 using MikePhil.Charting.Data;
 using MikePhil.Charting.Listener;
 using MikePhil.Charting.Util;
 using MikePhil.Charting.Highlight;
+using SQLite;
+using ArrayList = System.Collections.ArrayList;
 using String = System.String;
 using Thread = Java.Lang.Thread;
 
@@ -24,50 +29,42 @@ namespace TestAndroid
 {
     public class RealTimeChart : Fragment, IOnChartValueSelectedListenerSupport
     {
+        public string Message { get; set; }
+
+        public bool Connected { get; set; }
+
+        private WebSocketHelper _wSh;
+        private SQLiteConnection _db;
         private LineChart _mChart;
-        private String _message;
-        private bool addingNumbers;
+        private LineData _lineData;
 
-        private WebSocket _webSocket;
-        private WebSocketHelper wSH;
-        private ClientWebSocket _webSocketClient;
-        private const int MaxMessageSize = 1024;
-        private ArraySegment<System.Byte> _receivedDataBuffer;
-        private CancellationToken _cancellationToken;
-
-        protected String[] MMonths = new String[] {
+        protected static string[] MMonths = new String[] {
             "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"
         };
-
-        protected String[] MParties = new String[] {
-            "Party A", "Party B", "Party C", "Party D", "Party E", "Party F", "Party G", "Party H",
-            "Party I", "Party J", "Party K", "Party L", "Party M", "Party N", "Party O", "Party P",
-            "Party Q", "Party R", "Party S", "Party T", "Party U", "Party V", "Party W", "Party X",
-            "Party Y", "Party Z"
-        };
+        private ArrayList xVals = new ArrayList ();
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             return inflater.Inflate(Resource.Layout.ChartFragment, container, false);
         }
 
-        public override async void OnViewCreated(View view, Bundle savedInstanceState)
+        public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             base.OnViewCreated(view, savedInstanceState);
 
-            wSH = new WebSocketHelper(this, "wss://websockets9127.azurewebsites.net:443/ws.ashx?name=Android");
-            //_webSocketClient = new ClientWebSocket();
+            _wSh = new WebSocketHelper(this, "wss://websockets9127.azurewebsites.net:443/ws.ashx?name=Android");
+            
+            var docsFolder = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
+            var pathToDatabase = System.IO.Path.Combine(docsFolder, "db_sqlnet.db");
+
+            _db = new SQLiteConnection(pathToDatabase);
+            _db.CreateTable<Numbers>();
+            
             _mChart = new LineChart(this.Context);
+            //_mChart = new LineChart(Application.Context);
             RelativeLayout rl = view.FindViewById<RelativeLayout>(Resource.Id.RelativeLayout);
 
-            //_mChart = new LineChart(Application.Context);
             _mChart.SetOnChartValueSelectedListener(this);
-
-            //_webSocket = new WebSocket();
-            //await _webSocketClient.ConnectAsync(new Uri("wss://websockets9127.azurewebsites.net:443/ws.ashx?name=Android"), new CancellationToken());
-            //await _webSocketClient.SendAsync(new ArraySegment<byte>(System.Text.Encoding.UTF8.GetBytes("Hello")), WebSocketMessageType.Text, true, new CancellationToken());
-            
-
             _mChart.SetDescription("");
             _mChart.SetNoDataTextDescription("You need to provide data for the chart.");
             _mChart.SetTouchEnabled(true);
@@ -77,10 +74,10 @@ namespace TestAndroid
             _mChart.SetPinchZoom(true);
             _mChart.SetBackgroundColor(Color.LightGray);
 
-            LineData data = new LineData();
-            data.SetValueTextColor(Color.Black);
+            _lineData = new LineData();
+            _lineData.SetValueTextColor(Color.Black);
 
-            _mChart.Data = data;
+            _mChart.Data = _lineData;
 
             Legend l = _mChart.Legend;
 
@@ -130,7 +127,14 @@ namespace TestAndroid
 
             button.Click += delegate
             {
+                _db.DeleteAll<Numbers>();
                 _mChart.ClearValues();
+                /*IList<String> list = _lineData.XVals;
+                foreach (var xval in _lineData.XVals)
+                {
+                    list.Remove(xval);
+                }*/
+
                 button1.Text = "ADD";
                 button1.Enabled = true;
             };
@@ -142,51 +146,80 @@ namespace TestAndroid
             };
             button2.Click += delegate
             {
-                addingNumbers = false;
-                wSH.Send("STOP");
-                //await WebsocketSend("ST");
+                _wSh.Send("STOP");
             };
+
+            foreach (var month in MMonths)
+            {
+                xVals.Add(month);
+            }
+
+            //var vto = view.ViewTreeObserver;
+            //vto.GlobalLayout += (sender, args) =>
+            //{
+                PopulateFromDB();
+            //};
+            /*vto.addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout()
+                {
+                // Put your code here. 
+
+                    layout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                }
+            }); */
         }
 
         private int year = 2016;
 
-        public string Message
+        private Task ShowConnectedStatusTask()
         {
-            get
-            {
-                return _message;
-            }
+            if (Connected)
+                Snackbar.Make(this.View, "Connected", Snackbar.LengthLong)
+                    .Show();
+            return Task.CompletedTask;
+        }
 
-            set
+        private void PopulateFromDB()
+        {
+            if (_db.Table<Numbers>().Any())
             {
-                _message = value;
+                var table = _db.Table<Numbers>();
+                var i = 0;
+                foreach (var s in table)
+                {
+                    this.Message = s.Number.ToString(CultureInfo.InvariantCulture);
+                    _lineData.AddEntry(
+                        new Entry((float.Parse(Message, CultureInfo.InvariantCulture.NumberFormat)), i++), 0);
+                }
             }
         }
 
         public void AddEntry()
         {
-            LineData data = (LineData)_mChart.Data;
+            _lineData = (LineData)_mChart.Data;
 
-            if (data != null)
+            if (_lineData != null)
             {
 
-                LineDataSet set = (LineDataSet)data.GetDataSetByIndex(0);
+                LineDataSet set = (LineDataSet)_lineData.GetDataSetByIndex(0);
                 // set.addEntry(...); // can be called as well
 
                 if (set == null)
                 {
                     set = CreateSet();
-                    data.AddDataSet(set);
+                    _lineData.AddDataSet(set);
                 }
 
                 // add a new x-value first
-                data.AddXValue(MMonths[data.XValCount % 12] + " "
-                        + (year + data.XValCount / 12));
+                _lineData.AddXValue(MMonths[_lineData.XValCount % 12] + " "
+                        + (year + _lineData.XValCount / 12));
 
                 if (Message != null)
                 {
                     Log.Debug("    PLEASE ", "JUST DO IT - " + Message);
-                    data.AddEntry(
+                    _db.Insert(new Numbers { Number = float.Parse(Message, CultureInfo.InvariantCulture.NumberFormat)});
+                    _lineData.AddEntry(
                         new Entry((float.Parse(Message, CultureInfo.InvariantCulture.NumberFormat)), set.EntryCount), 0);
                 }
 
@@ -199,7 +232,7 @@ namespace TestAndroid
                 // mChart.setVisibleYRange(30, AxisDependency.LEFT);
 
                 // move to the latest entry
-                _mChart.MoveViewToX(data.XValCount - 121);
+                _mChart.MoveViewToX(_lineData.XValCount - 121);
 
                 // this automatically refreshes the chart (calls invalidate())
                 // mChart.moveViewTo(data.getXValCount()-7, 55f,
@@ -236,21 +269,17 @@ namespace TestAndroid
             //throw new NotImplementedException();
         }
 
-        public async void FeedMultiple()
+        public void FeedMultiple()
         {
-            Log.Debug("WHATTHEFUCK", "HALP");
-            //await WebsocketHelp();
-            
             IRunnable irr = new Runnable( () =>
             {
                 Activity.RunOnUiThread(new Runnable(AddEntry));
                 try
                 {
-                    this.Message = wSH.Send("Help");
-                    //await Task.Delay(1000);
-                    //await WebsocketHelp();
-                    Thread.Sleep(100);
+                    this.Message = _wSh.Send("Help");
                     Log.Debug(" CHEESUS ", "YAY" + Message);
+                    Thread.Sleep(100);
+                    
                 }
                 catch (InterruptedException e)
                 {
@@ -260,56 +289,6 @@ namespace TestAndroid
             });
             Thread runThread = new Thread(irr);
             runThread.Start();
-
-            //return "Added";
         }
-
-        public async Task WebsocketHelp()
-        {
-            //Buffer for received bits. 
-            _receivedDataBuffer = new ArraySegment<System.Byte>(new System.Byte[MaxMessageSize]);
-
-            _cancellationToken = new CancellationToken();
-
-            //Checks WebSocket state. 
-            while (_webSocketClient.State == WebSocketState.Open)
-            {
-                await WebsocketReceive();
-                await WebsocketSend(Message);
-            }
-        }
-
-        public async Task WebsocketSend(string message)
-        {
-            
-            bool wtf = _webSocketClient.SendAsync(new ArraySegment<byte>(System.Text.Encoding.UTF8.GetBytes(message)),
-                             WebSocketMessageType.Text, true, _cancellationToken).IsCompleted;
-            Log.Debug("SEND FUCKKKK", message + wtf.ToString());
-
-        }
-
-        public async Task WebsocketReceive()
-        {
-            WebSocketReceiveResult webSocketReceiveResult =
-                    await _webSocketClient.ReceiveAsync(_receivedDataBuffer, _cancellationToken);
-
-            //If input frame is cancelation frame, send close command. 
-            if (webSocketReceiveResult.MessageType == WebSocketMessageType.Close)
-            {
-                await _webSocketClient.CloseAsync(WebSocketCloseStatus.NormalClosure,
-                    String.Empty, _cancellationToken);
-            }
-            else
-            {
-                byte[] payloadData = _receivedDataBuffer.Array.Where(b => b != 0).ToArray();
-
-                //Because we know that is a string, we convert it. 
-                string receiveString =
-                    System.Text.Encoding.UTF8.GetString(payloadData, 0, payloadData.Length);
-                this.Message = receiveString;
-                Log.Debug("RECEIVE FUCKKKK", Message);
-            }
-        }
-
     }
 }

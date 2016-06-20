@@ -1,7 +1,10 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
 <resources>
 
-  <style name="MyTheme" parent="@android:style/Theme.Material.Light.DarkActionBar">
+  <style name="MyTheme" parent="MyTheme.Base">
+  </style>
+
+  <style name="MyTheme.Base" parent="Theme.AppCompat.Light.DarkActionBar">
     <item name="android:colorPrimary">@color/primary</item>>
     <item name="android:colorPrimaryDark">@color/primary_dark</item>
     <item name="android:colorAccent">@color/accent</item>
@@ -13,12 +16,12 @@
     <item name="android:actionBarStyle">@style/MyTheme.ActionBarStyle</item>
   </style>
 
-  <style name="MyTheme.ActionBarStyle" parent="@android:style/Widget.Holo.Light.ActionBar">
+  <style name="MyTheme.ActionBarStyle" parent="@android:style/Widget.Material.Light.ActionBar">
     <item name="android:titleTextStyle">@style/MyTheme.ActionBar.TitleTextStyle</item>
     <item name="android:background">@color/primary</item>
   </style>
 
-  <style name="MyTheme.ActionBar.TitleTextStyle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title">
+  <style name="MyTheme.ActionBar.TitleTextStyle" parent="@android:style/TextAppearance.Material.Widget.ActionBar.Title">
     <item name="android:textColor">@android:color/white</item>
   </style>
 

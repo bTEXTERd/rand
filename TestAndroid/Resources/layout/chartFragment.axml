@@ -4,7 +4,7 @@
     android:id="@+id/RelativeLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <!--<TestAndroid.TestAndroid.MikePhil.Charting.Charts.LineChart
+<!--<TestAndroid.TestAndroid.MikePhil.Charting.Charts.LineChart
         android:id="@+id/LineCh"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

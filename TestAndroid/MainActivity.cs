@@ -1,12 +1,13 @@
 ﻿using Android.App;
 using Android.Graphics;
 using Android.OS;
+using Android.Support.V7.App;
 using BarChart;
 
 namespace TestAndroid
 {
     [Activity(Label = "TestAndroid", MainLauncher = true, Icon = "@drawable/icon")]
-    public class MainActivity : Activity
+    public class MainActivity : AppCompatActivity
     {
         protected override void OnCreate(Bundle bundle)
         {
@@ -14,7 +15,7 @@ namespace TestAndroid
 
             /*RealTimeChart rtc = new RealTimeChart();
             var ft = FragmentManager.BeginTransaction();
-            //ft.Add(Resource.Id.ChartFragment, rtc);
+            ft.Add(Resource.Id.ChartFragment, rtc);
             ft.Commit();*/
 
             

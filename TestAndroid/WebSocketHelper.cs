@@ -1,7 +1,12 @@
 using System;
 using System.Threading;
-//using System.Net.WebSockets;
+using Android.App;
+using Android.OS;
+using Android.Support.Design.Widget;
+using Android.Util;
+using Java.Lang;
 using WebSocket4Net;
+using Thread = System.Threading.Thread;
 
 namespace TestAndroid
 {
@@ -11,44 +16,22 @@ namespace TestAndroid
         private string _incomingMessage;
         private readonly AutoResetEvent _messageReceivedEvent = new AutoResetEvent(false);
         private RealTimeChart realTimeChart;
-        private Websockets.IWebSocketConnection connection;
+        //private Websockets.IWebSocketConnection connection;
 
         public WebSocketHelper(RealTimeChart realTimeChart, string url)
         {
             _webSocket = new WebSocket(url);
             this.realTimeChart = realTimeChart;
+            _webSocket.Opened += Opened;
             _webSocket.MessageReceived += MessageReceived;
             _webSocket.Closed += new EventHandler(WebsocketClosed); ;
             _webSocket.Open();
-            /*connection = Websockets.WebSocketFactory.Create();
-            connection.OnLog += Connection_OnLog;
-            connection.OnError += Connection_OnError;
-            connection.OnMessage += Connection_OnMessage;
-            connection.OnOpened += Connection_OnOpened;
-
-            connection.Open(url);
-            if (!connection.IsOpen)
-                return;*/
         }
 
-        private void Connection_OnLog(string obj)
+        private void Opened(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
-        }
-
-        private void Connection_OnError(string obj)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void Connection_OnOpened()
-        {
-            throw new NotImplementedException();
-        }
-
-        private void Connection_OnMessage(string obj)
-        {
-            throw new NotImplementedException();
+            Snackbar.Make(realTimeChart.View, "Connected", Snackbar.LengthLong)
+                    .Show();
         }
 
         public string Send(string message)
@@ -69,6 +52,12 @@ namespace TestAndroid
         private void WebsocketClosed(object sender, EventArgs e)
         {
             _webSocket.Close();
+        }
+
+        private void ShowConnectedStatusTask()
+        {
+            Snackbar.Make(realTimeChart.View, "Connected", Snackbar.LengthLong)
+                    .Show();
         }
     }
 }
