@@ -2476,11 +2476,17 @@ namespace TestAndroid
 		public partial class String
 		{
 			
-			// aapt resource value: 0x7f070018
-			public const int ApplicationName = 2131165208;
+			// aapt resource value: 0x7f070019
+			public const int AddButton = 2131165209;
 			
 			// aapt resource value: 0x7f070017
-			public const int Hello = 2131165207;
+			public const int ApplicationName = 2131165207;
+			
+			// aapt resource value: 0x7f07001a
+			public const int ClearButton = 2131165210;
+			
+			// aapt resource value: 0x7f070018
+			public const int PauseButton = 2131165208;
 			
 			// aapt resource value: 0x7f070000
 			public const int abc_action_bar_home_description = 2131165184;
@@ -3011,14 +3017,11 @@ namespace TestAndroid
 			// aapt resource value: 0x7f090157
 			public const int MyTheme = 2131296599;
 			
-			// aapt resource value: 0x7f09015a
-			public const int MyTheme_ActionBar_TitleTextStyle = 2131296602;
-			
 			// aapt resource value: 0x7f090159
-			public const int MyTheme_ActionBarStyle = 2131296601;
+			public const int MyTheme_ActionBar_TitleTextStyle = 2131296601;
 			
 			// aapt resource value: 0x7f090158
-			public const int MyTheme_Base = 2131296600;
+			public const int MyTheme_ActionBarStyle = 2131296600;
 			
 			// aapt resource value: 0x7f090017
 			public const int Platform_AppCompat = 2131296279;

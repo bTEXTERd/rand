@@ -4,49 +4,60 @@ using Android.App;
 using Android.OS;
 using Android.Support.Design.Widget;
 using Android.Util;
-using Java.Lang;
+using Android.Widget;
+using SuperSocket.ClientEngine;
 using WebSocket4Net;
-using Thread = System.Threading.Thread;
 
 namespace TestAndroid
 {
-    public class WebSocketHelper 
+    public class WebSocketHelper
     {
         private readonly WebSocket _webSocket;
         private string _incomingMessage;
         private readonly AutoResetEvent _messageReceivedEvent = new AutoResetEvent(false);
-        private RealTimeChart realTimeChart;
-        //private Websockets.IWebSocketConnection connection;
+        private readonly RealTimeChart _realTimeChart;
 
         public WebSocketHelper(RealTimeChart realTimeChart, string url)
         {
             _webSocket = new WebSocket(url);
-            this.realTimeChart = realTimeChart;
+            this._realTimeChart = realTimeChart;
             _webSocket.Opened += Opened;
+            _webSocket.Error += Error;
             _webSocket.MessageReceived += MessageReceived;
-            _webSocket.Closed += new EventHandler(WebsocketClosed); ;
+            _webSocket.Closed += WebsocketClosed;
+            ;
             _webSocket.Open();
+        }
+
+        private void Error(object sender, EventArgs e)
+        {
+            _realTimeChart.Toast.SetText("Connection Error");
+            _realTimeChart.Toast.Show();
         }
 
         private void Opened(object sender, EventArgs e)
         {
-            Snackbar.Make(realTimeChart.View, "Connected", Snackbar.LengthLong)
-                    .Show();
+            _realTimeChart.Toast.Show();
         }
 
         public string Send(string message)
         {
+            if (!message.Equals("STOP"))
+            {
+                _webSocket.Send(message);
+                _messageReceivedEvent.WaitOne();
+                return _incomingMessage;
+            }
             _webSocket.Send(message);
-            _messageReceivedEvent.WaitOne();
-            return _incomingMessage;
+            return "";
         }
 
         private void MessageReceived(object sender, MessageReceivedEventArgs e)
         {
             _incomingMessage = e.Message;
             _messageReceivedEvent.Set();
-            realTimeChart.Message = _incomingMessage;
-            realTimeChart.AddEntry();
+            _realTimeChart.Message = _incomingMessage;
+            _realTimeChart.Activity.RunOnUiThread(() => _realTimeChart.AddEntry());
         }
 
         private void WebsocketClosed(object sender, EventArgs e)
@@ -56,9 +67,9 @@ namespace TestAndroid
 
         private void ShowConnectedStatusTask()
         {
-            Snackbar.Make(realTimeChart.View, "Connected", Snackbar.LengthLong)
-                    .Show();
+            /*Snackbar.Make(realTimeChart.View, "Connected", Snackbar.LengthLong)
+                    .Show();*/
+            //Toast.MakeText(Application.Context, "Connected", ToastLength.Long);
         }
     }
 }
-
